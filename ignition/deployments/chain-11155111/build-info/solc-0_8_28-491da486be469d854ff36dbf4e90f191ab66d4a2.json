@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-491da486be469d854ff36dbf4e90f191ab66d4a2",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/Transactions.sol": "project/contracts/Transactions.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Transactions.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\ncontract Transactions {\r\n    address payable public owner;\r\n    uint256 public transactionCount;\r\n    uint256 public feeAmount = 0.001 ether;\r\n\r\n    event Transfer(\r\n        address from,\r\n        address to,\r\n        uint amount,\r\n        string message,\r\n        uint256 timestamp,\r\n        string keyword\r\n    );\r\n\r\n    struct TransferStruct {\r\n        address sender;\r\n        address receiver;\r\n        uint amount;\r\n        string message;\r\n        uint256 timestamp;\r\n        string keyword;\r\n    }\r\n\r\n    TransferStruct[] public transactions;\r\n\r\n    constructor() {\r\n        owner = payable(msg.sender); // your wallet becomes the fee receiver\r\n    }\r\n\r\n    function addToBlockchain(\r\n        address payable _receiver,\r\n        string memory _message,\r\n        string memory _keyword\r\n    ) public payable {\r\n        require(msg.value > feeAmount, \"Insufficient ETH for fee and amount\");\r\n\r\n        uint256 amountToSend = msg.value - feeAmount;\r\n\r\n        // Send the ETH minus fee to the receiver\r\n        _receiver.transfer(amountToSend);\r\n\r\n        // Send the fee to the contract owner\r\n        owner.transfer(feeAmount);\r\n\r\n        transactions.push(\r\n            TransferStruct(\r\n                msg.sender,\r\n                _receiver,\r\n                amountToSend,\r\n                _message,\r\n                block.timestamp,\r\n                _keyword\r\n            )\r\n        );\r\n\r\n        transactionCount += 1;\r\n\r\n        emit Transfer(\r\n            msg.sender,\r\n            _receiver,\r\n            amountToSend,\r\n            _message,\r\n            block.timestamp,\r\n            _keyword\r\n        );\r\n    }\r\n\r\n    function getAllTransactions() public view returns (TransferStruct[] memory) {\r\n        return transactions;\r\n    }\r\n\r\n    function getTransactionCount() public view returns (uint256) {\r\n        return transactionCount;\r\n    }\r\n}\r\n"
+      }
+    }
+  }
+}
